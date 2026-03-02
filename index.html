@@ -1,23 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+    <meta name="theme-color" content="#4f46e5">
+    <title>Professional To-Do List</title>
+    <meta name="description" content="An offline-capable, accessible, and professional To-Do List web application.">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <h1> My To-Do List</h1>
-        <input type="text" id="new-task" placeholder="Add a new task">
-        <button id="add-task">Add Task</button>
-        <div class="filters">
-            <button data-filter="all">All</button>
-            <button data-filter="completed">Completed</button>
-            <button data-filter="pending">Pending</button>
-        </div>
-        <ul id="task-list"></ul>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <h1>Tasks</h1>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <svg class="sun-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor"
+                            stroke-width="2" fill="none">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor"
+                            stroke-width="2" fill="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <button id="notify-toggle" class="icon-btn" aria-label="Enable notifications"
+                        title="Enable notifications">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                            fill="none">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" id="help-btn" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                            fill="none">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <p id="date-display" class="date-display"></p>
+        </header>
+
+        <main>
+            <section class="add-task-section">
+                <form id="add-task-form" aria-label="Add new task">
+                    <div class="input-row">
+                        <input type="text" id="new-task-title" placeholder="What needs to be done? (Press Enter)"
+                            required aria-label="Task title" autocomplete="off" data-testid="new-task-input">
+                    </div>
+                    <div class="options-row">
+                        <div class="field">
+                            <label for="new-task-date" class="sr-only">Due date</label>
+                            <input type="date" id="new-task-date" title="Due date">
+                        </div>
+                        <div class="field">
+                            <label for="new-task-priority" class="sr-only">Priority</label>
+                            <select id="new-task-priority" title="Priority">
+                                <option value="low">Low</option>
+                                <option value="normal" selected>Normal Priority</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="field fill">
+                            <label for="new-task-tags" class="sr-only">Tags</label>
+                            <input type="text" id="new-task-tags" placeholder="Tags (comma separated)" title="Tags"
+                                autocomplete="off">
+                        </div>
+                        <button type="submit" class="primary-btn" aria-label="Add Task">Add</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="controls-section" aria-label="List controls">
+                <div class="search-sort-row">
+                    <div class="search-container">
+                        <label for="search-input" class="sr-only">Search</label>
+                        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor"
+                            stroke-width="2" fill="none">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search title/tags... (/ to focus)"
+                            autocomplete="off">
+                    </div>
+                    <div class="sort-container">
+                        <label for="sort-select" class="sr-only">Sort by</label>
+                        <select id="sort-select" title="Sort tasks">
+                            <option value="custom">Custom (Drag & Drop)</option>
+                            <option value="createdAt-desc">Newest First</option>
+                            <option value="createdAt-asc">Oldest First</option>
+                            <option value="dueDate-asc">Due Date (Soonest)</option>
+                            <option value="dueDate-desc">Due Date (Latest)</option>
+                            <option value="priority-desc">Priority (High -> Low)</option>
+                            <option value="status-asc">Status (Active first)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filters-row">
+                    <div class="tabs" role="tablist" aria-label="Task filters">
+                        <button class="tab-btn active" role="tab" aria-selected="true" data-filter="all">All</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-filter="active">Active</button>
+                        <button class="tab-btn" role="tab" aria-selected="false"
+                            data-filter="completed">Completed</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-filter="dueToday">Due
+                            Today</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" data-filter="overdue">Overdue</button>
+                    </div>
+
+                    <div class="bulk-actions">
+                        <button id="undo-btn" class="text-btn" aria-label="Undo last action" title="Undo (Ctrl+Z)"
+                            disabled>
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <path d="M3 7v6h6"></path>
+                                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                            </svg> Undo
+                        </button>
+                        <button id="mark-all-btn" class="text-btn">Mark All Complete</button>
+                        <button id="clear-completed-btn" class="text-btn danger">Clear Completed</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="list-section" aria-label="Tasks list">
+                <ul id="task-list" class="task-list" role="list">
+                    <!-- Tasks injected here via JS -->
+                </ul>
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5"
+                            fill="none" class="empty-svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                    </div>
+                    <h3 id="empty-title">All caught up!</h3>
+                    <p id="empty-message">You have no tasks taking up space.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="stats">
+                <span id="stat-total">0</span> total ·
+                <span id="stat-active">0</span> active ·
+                <span id="stat-completed">0</span> completed
+            </div>
+            <div class="info">Press <kbd>?</kbd> for shortcuts</div>
+        </footer>
     </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <dialog id="shortcuts-modal" class="modal">
+        <div class="modal-content">
+            <h2>Keyboard Shortcuts</h2>
+            <ul class="shortcuts-list">
+                <li><kbd>n</kbd> Focus new task input</li>
+                <li><kbd>/</kbd> Focus search input</li>
+                <li><kbd>?</kbd> Show / hide this dialog</li>
+                <li><kbd>Escape</kbd> Cancel edit / dialogs</li>
+                <li><kbd>Tab</kbd> / <kbd>↑</kbd> <kbd>↓</kbd> Navigate tasks</li>
+                <li><kbd>Space</kbd> Toggle focused task checkbox</li>
+                <li><kbd>Delete</kbd> / <kbd>Backspace</kbd> Delete focused task</li>
+                <li><kbd>Alt</kbd> + <kbd>↑</kbd>/<kbd>↓</kbd> Move focused task up/down</li>
+                <li><kbd>Ctrl</kbd> + <kbd>z</kbd> Undo last action</li>
+            </ul>
+            <form method="dialog">
+                <button type="submit" class="primary-btn">Close</button>
+            </form>
+        </div>
+    </dialog>
+
+    <div id="announcer" aria-live="polite" class="sr-only"></div>
+
     <script src="javascript.js"></script>
 </body>
+
 </html>
